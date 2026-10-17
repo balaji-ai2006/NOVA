@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NOVA — Shadow Monarch AI System</title>
+  <meta name="description" content="NOVA: Offline-first personal multimodal AI assistant with voice, vision, and memory. Solo Leveling inspired interface." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/nova.css" />
+</head>
+<body class="solo-leveling-theme">
+  <!-- Subtle ambient particle background -->
+  <div class="shadow-particles" id="shadowParticles" aria-hidden="true"></div>
+
+  <!-- ═══════════════════════════════════════════════ SIDEBAR ══ -->
+  <aside class="sidebar hud-panel" id="sidebar">
+    <!-- Brand -->
+    <div class="brand">
+      <div class="brand-monarch-crest" id="brandOrb">
+        <svg viewBox="0 0 44 44" fill="none" class="crest-svg">
+          <circle cx="22" cy="22" r="20" stroke="url(#monarchGrad)" stroke-width="1.5" stroke-dasharray="4 2"/>
+          <polygon points="22,6 36,22 22,38 8,22" stroke="url(#monarchGrad)" stroke-width="1.5" fill="rgba(6,182,212,0.08)"/>
+          <circle cx="22" cy="22" r="5" fill="url(#coreGrad)"/>
+          <line x1="22" y1="2" x2="22" y2="42" stroke="url(#monarchGrad)" stroke-width="1" stroke-opacity="0.4"/>
+          <line x1="2" y1="22" x2="42" y2="22" stroke="url(#monarchGrad)" stroke-width="1" stroke-opacity="0.4"/>
+          <defs>
+            <linearGradient id="monarchGrad" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#00f0ff"/>
+              <stop offset="50%" stop-color="#8b5cf6"/>
+              <stop offset="100%" stop-color="#3b82f6"/>
+            </linearGradient>
+            <radialGradient id="coreGrad" cx="22" cy="22" r="6" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#ffffff"/>
+              <stop offset="60%" stop-color="#00f0ff"/>
+              <stop offset="100%" stop-color="#7c3aed"/>
+            </radialGradient>
+          </defs>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-system-tag">[SYSTEM INTERFACE]</div>
+        <div class="brand-name">NOVA <span class="brand-tier">S-CLASS</span></div>
+        <div class="brand-tagline">Shadow Monarch AI Core</div>
+      </div>
+    </div>
+
+    <!-- Navigation Bar: Chat, Memory, Voice, Vision, Tools, Settings -->
+    <nav class="sidebar-nav">
+      <button class="nav-item active" id="navChat" title="Chat Terminal">
+        <span class="nav-icon">💬</span><span class="nav-label">Chat</span>
+      </button>
+      <button class="nav-item" id="navMemory" title="Memory Vault">
+        <span class="nav-icon">💾</span><span class="nav-label">Memory</span>
+      </button>
+      <button class="nav-item" id="navVoice" title="Voice Engine">
+        <span class="nav-icon">🎙</span><span class="nav-label">Voice</span>
+      </button>
+      <button class="nav-item" id="navVision" title="Shadow Sight (Webcam)">
+        <span class="nav-icon">📷</span><span class="nav-label">Vision</span>
+      </button>
+      <button class="nav-item" id="navTools" title="System Tools">
+        <span class="nav-icon">⚡</span><span class="nav-label">Tools</span>
+      </button>
+      <button class="nav-item" id="navSettings" title="System Configuration">
+        <span class="nav-icon">⚙</span><span class="nav-label">Settings</span>
+      </button>
+    </nav>
+
+    <!-- System Status HUD -->
+    <div class="status-panel hud-box">
+      <div class="status-title">
+        <span>HUNTER STATUS</span>
+        <span class="hud-status-badge">AWAKENED</span>
+      </div>
+
+      <div class="status-row" id="statusOllama">
+        <span class="status-dot dot-checking"></span>
+        <span class="status-label">AI Engine</span>
+        <span class="status-value" id="statusOllamaText">Checking…</span>
+      </div>
+
+      <div class="status-row" id="statusModel">
+        <span class="status-dot dot-info"></span>
+        <span class="status-label">Core Model</span>
+        <span class="status-value model-badge" id="statusModelText">—</span>
+      </div>
+
+      <div class="status-row">
+        <span class="status-dot dot-info"></span>
+        <span class="status-label">Microphone</span>
+        <span class="status-value" id="statusMic">Ready</span>
+      </div>
+
+      <div class="status-row">
+        <span class="status-dot dot-info"></span>
+        <span class="status-label">Voice Output</span>
+        <span class="status-value" id="statusTTS">Ready</span>
+      </div>
+
+      <div class="status-row">
+        <span class="status-dot dot-info"></span>
+        <span class="status-label">Camera</span>
+        <span class="status-value" id="statusCam">Ready</span>
+      </div>
+
+      <div class="status-row">
+        <span class="status-dot dot-offline"></span>
+        <span class="status-label">Environment</span>
+        <span class="status-value privacy-badge">🔒 100% Offline</span>
+      </div>
+    </div>
+
+    <!-- Model Switcher -->
+    <div class="model-switcher hud-box">
+      <div class="model-switcher-title">Awakened Models</div>
+      <div class="model-list" id="modelList">
+        <div class="model-list-empty">Scanning local models…</div>
+      </div>
+    </div>
+
+    <!-- Memory Panel -->
+    <div class="memory-panel hud-box" id="memorySection">
+      <div class="memory-header">
+        <span class="memory-title">💾 Shadow Memory</span>
+        <button class="btn-icon" id="btnClearMemory" title="Clear all memories">🗑</button>
+      </div>
+      <div class="memory-list" id="memoryList">
+        <div class="memory-empty">Memory vault empty.</div>
+      </div>
+      <div class="memory-add">
+        <input id="memoryInput" class="memory-input" placeholder="Record permanent memory…" />
+        <button class="btn-save-memory" id="btnSaveMemory">Record</button>
+      </div>
+    </div>
+
+    <!-- Resource Bar -->
+    <div class="resource-bar hud-box" id="resourceBar">
+      <div class="resource-item">
+        <span class="resource-label">CPU MANA</span>
+        <div class="resource-track"><div class="resource-fill" id="cpuFill"></div></div>
+        <span class="resource-pct" id="cpuPct">—</span>
+      </div>
+      <div class="resource-item">
+        <span class="resource-label">VRAM / RAM</span>
+        <div class="resource-track"><div class="resource-fill" id="ramFill"></div></div>
+        <span class="resource-pct" id="ramPct">—</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ════════════════════════════════════════════════ MAIN ══ -->
+  <main class="main-area">
+
+    <!-- Top Bar -->
+    <header class="top-bar hud-topbar">
+      <div class="top-bar-left">
+        <button class="btn-icon sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">☰</button>
+        <div class="top-bar-title">
+          <span class="monarch-sys-pill">[SYSTEM]</span>
+          <span class="nova-gradient-text">NOVA</span>
+          <span class="top-bar-subtitle">Shadow Monarch Core</span>
+        </div>
+      </div>
+
+      <div class="top-bar-actions">
+        <button class="btn-pill btn-stop-speaking hidden" id="btnStopTTS" title="Stop speaking">⏹ Silence</button>
+        <button class="btn-pill" id="btnHandsFree" title="Hands-free continuous conversation mode">🎙 Hands-Free: Off</button>
+        <button class="btn-pill" id="btnSTTIndicator" title="Current Speech Recognition Language">🎙 STT: Auto Detect</button>
+        <button class="btn-pill" id="btnLangToggle" title="Click to cycle answer language: English / Marathi / Hindi">🌐 Reply: English</button>
+        <button class="btn-pill" id="btnTTS" title="Toggle spoken responses">🔊 Voice: Off</button>
+        <button class="btn-pill active" id="btnOffline" title="100% Offline privacy mode">🔒 Local</button>
+        <button class="btn-icon" id="btnSettings" title="System Settings">⚙</button>
+      </div>
+    </header>
+
+    <!-- Chat Area -->
+    <section class="chat-area" id="chatArea">
+      <!-- Welcome screen with Animated Crystalline Energy Core -->
+      <div class="welcome-screen" id="welcomeScreen">
+        <div class="welcome-orb-wrapper">
+          <div class="crystalline-core" id="welcomeOrb">
+            <!-- Rotating Runic Hex Rings -->
+            <div class="runic-ring ring-outer"></div>
+            <div class="runic-ring ring-middle"></div>
+            <div class="runic-ring ring-inner"></div>
+
+            <!-- Geometric Crystalline Core -->
+            <div class="crystal-facet-wrapper">
+              <svg viewBox="0 0 100 100" class="crystal-svg">
+                <defs>
+                  <linearGradient id="crystalGlowA" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#00f0ff" stop-opacity="0.9"/>
+                    <stop offset="50%" stop-color="#3b82f6" stop-opacity="0.8"/>
+                    <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.95"/>
+                  </linearGradient>
+                  <linearGradient id="crystalGlowB" x1="100%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+                    <stop offset="50%" stop-color="#00f0ff" stop-opacity="0.7"/>
+                    <stop offset="100%" stop-color="#7c3aed" stop-opacity="0.85"/>
+                  </linearGradient>
+                  <radialGradient id="manaPulse" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#00f0ff" stop-opacity="1"/>
+                    <stop offset="40%" stop-color="#38bdf8" stop-opacity="0.6"/>
+                    <stop offset="80%" stop-color="#8b5cf6" stop-opacity="0.2"/>
+                    <stop offset="100%" stop-color="#030712" stop-opacity="0"/>
+                  </radialGradient>
+                </defs>
+
+                <!-- Mana Aura -->
+                <circle cx="50" cy="50" r="46" fill="url(#manaPulse)" class="mana-aura-pulse"/>
+
+                <!-- Hexagonal Runic Frame -->
+                <polygon points="50,6 88,28 88,72 50,94 12,72 12,28" stroke="#00f0ff" stroke-width="1" stroke-dasharray="6 3" fill="none" opacity="0.65"/>
+                <polygon points="50,14 81,32 81,68 50,86 19,68 19,32" stroke="#8b5cf6" stroke-width="1" fill="rgba(11,16,38,0.5)"/>
+
+                <!-- Diamond Crystalline Facets -->
+                <polygon points="50,18 76,50 50,82 24,50" fill="url(#crystalGlowA)" stroke="#00f0ff" stroke-width="1.5"/>
+                <polygon points="50,18 76,50 50,50" fill="url(#crystalGlowB)" opacity="0.85"/>
+                <polygon points="50,18 24,50 50,50" fill="url(#crystalGlowA)" opacity="0.7"/>
+                <polygon points="50,50 76,50 50,82" fill="url(#crystalGlowA)" opacity="0.6"/>
+                <polygon points="50,50 24,50 50,82" fill="url(#crystalGlowB)" opacity="0.9"/>
+
+                <!-- Core Light Beacon -->
+                <circle cx="50" cy="50" r="4" fill="#ffffff" filter="drop-shadow(0 0 6px #00f0ff)"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="system-quest-banner">
+          <span class="quest-tag">[SYSTEM NOTICE]</span>
+          <span class="quest-title">SHADOW MONARCH MANA CORE ONLINE</span>
+        </div>
+
+        <h1 class="welcome-title">Welcome to <span class="monarch-neon-text">NOVA</span></h1>
+        <p class="welcome-subtitle">Your private, offline multimodal AI companion with multilingual voice, memory, and vision.</p>
+
+        <div class="welcome-chips">
+          <button class="chip" onclick="insertPrompt('What can you do?')">⚡ What are your abilities?</button>
+          <button class="chip" onclick="insertPrompt('मराठीमध्ये स्वतःची ओळख द्या आणि मला मदत कशी करू शकता ते सांगा.')">मराठीत बोला 🇮🇳</button>
+          <button class="chip" onclick="insertPrompt('नमस्ते NOVA! आप मेरी पढ़ाई और कोडिंग में कैसे मदद कर सकते हैं?')">हिंदी में बात करें 🇮🇳</button>
+          <button class="chip" onclick="insertPrompt('Help me write and debug a clean Python script')">Code Python Script 🐍</button>
+        </div>
+      </div>
+
+      <!-- Messages container -->
+      <div class="messages" id="messages"></div>
+    </section>
+
+    <!-- Vision Preview -->
+    <div class="vision-preview hidden hud-box" id="visionPreview">
+      <div class="vision-preview-header">
+        <span>📷 Shadow Sight (Camera Feed)</span>
+        <button class="btn-icon" id="btnCloseVision" title="Close preview">✕</button>
+      </div>
+      <img id="visionImg" class="vision-img" src="" alt="Captured frame" />
+      <div class="vision-answer" id="visionAnswer"></div>
+      <div class="vision-controls">
+        <input id="visionQuestion" class="vision-question-input" placeholder="Ask about this image…" value="What do you see?" />
+        <button class="btn-primary" id="btnAnalyse">Analyse ✨</button>
+      </div>
+    </div>
+
+    <!-- Speech Review / Uncertainty Confirmation Dock (Requirement 9) -->
+    <div class="speech-review-dock hidden" id="speechReviewDock">
+      <div class="speech-review-header">
+        <span class="speech-detected-tag" id="speechDetectedTag">🎙 Detected: Auto Detect</span>
+        <span class="speech-confidence-tag" id="speechConfidenceTag">Confidence: 95%</span>
+      </div>
+      <div class="speech-review-content">
+        <span class="speech-review-label">Recognized:</span>
+        <span class="speech-review-text" id="speechReviewText"></span>
+      </div>
+      <div class="speech-review-actions">
+        <button class="btn-sm btn-hud-confirm" id="btnConfirmSendVoice" title="Send now">Send Now ↵</button>
+        <button class="btn-sm btn-hud-edit" id="btnEditVoiceInput" title="Edit in input box">Edit</button>
+        <button class="btn-sm btn-hud-cancel" id="btnCancelVoiceReview" title="Discard">Discard ✕</button>
+      </div>
+    </div>
+
+    <!-- Floating Live Listening Pill -->
+    <div class="voice-status-pill hidden" id="voiceStatusPill">
+      <span class="voice-pulse-dot"></span>
+      <span id="voiceStatusText">Listening… Speak now</span>
+      <button class="voice-cancel-btn" id="btnCancelVoice" title="Cancel listening">✕</button>
+    </div>
+
+    <!-- Futuristic Input Dock -->
+    <footer class="input-area hud-dock">
+      <button class="action-btn cam-btn" id="btnCamera" title="Capture image from camera">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+          <circle cx="12" cy="13" r="4"/>
+        </svg>
+      </button>
+
+      <button class="action-btn mic-btn" id="btnMic" title="Click to speak (English / Marathi / Hindi)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/>
+          <path d="M19 10v2a7 7 0 01-14 0v-2"/>
+          <line x1="12" y1="19" x2="12" y2="23"/>
+          <line x1="8" y1="23" x2="16" y2="23"/>
+        </svg>
+        <span class="mic-tooltip">Click to speak</span>
+      </button>
+
+      <div class="input-wrapper">
+        <textarea
+          id="chatInput"
+          class="chat-input"
+          placeholder="Command NOVA in English, Marathi, or Hindi… (Shift+Enter for newline)"
+          rows="1"
+          autofocus
+        ></textarea>
+      </div>
+
+      <button class="action-btn send-btn" id="btnSend" title="Send message (Enter)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="22" y1="2" x2="11" y2="13"/>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+      </button>
+
+      <button class="action-btn clear-btn" id="btnClear" title="Clear conversation terminal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+          <path d="M10 11v6M14 11v6"/>
+        </svg>
+      </button>
+    </footer>
+  </main>
+
+  <!-- ════════════════════════════ SETTINGS MODAL ══ -->
+  <div class="modal-overlay hidden" id="settingsOverlay">
+    <div class="modal hud-modal" id="settingsModal">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-sys-tag">[SYSTEM CONFIGURATION]</span>
+          <h2>⚙ NOVA Settings</h2>
+        </div>
+        <button class="btn-icon" id="btnCloseSettings">✕</button>
+      </div>
+      <div class="modal-body">
+        <!-- Speech Recognition Language (STT) -->
+        <div class="setting-group">
+          <label class="setting-label">Speech Recognition Language (STT)</label>
+          <select id="sttLangSelect" class="setting-select">
+            <option value="auto" selected>Auto Detect (default — acoustic neural detection)</option>
+            <option value="en">English (en)</option>
+            <option value="mr">Marathi / मराठी (mr)</option>
+            <option value="hi">Hindi / हिन्दी (hi)</option>
+          </select>
+          <div class="setting-hint">In Auto Detect, Whisper detects whether you speak English, Marathi, or Hindi acoustically without forcing any language.</div>
+        </div>
+
+        <!-- NOVA Response Language -->
+        <div class="setting-group">
+          <label class="setting-label">NOVA Response Language</label>
+          <select id="responseLangSelect" class="setting-select">
+            <option value="en" selected>English (Default)</option>
+            <option value="mr">Marathi / मराठी (mr)</option>
+            <option value="hi">Hindi / हिन्दी (hi)</option>
+            <option value="auto">Match User's Language (Auto)</option>
+          </select>
+          <div class="setting-hint">NOVA understands any language you speak or type, but answers in English until you choose another language here.</div>
+        </div>
+
+        <!-- Voice Verification / Auto-Send -->
+        <div class="setting-group">
+          <label class="setting-label">Voice Review Before Sending</label>
+          <label class="toggle-label">
+            <input type="checkbox" id="autoSendToggle" />
+            <span class="toggle-track"></span>
+            Auto-send high-confidence voice (uncheck to review & edit first)
+          </label>
+          <div class="setting-hint">When unchecked, speech transcription is placed into the input box so you can review or edit before sending.</div>
+        </div>
+
+        <!-- Voice Output (TTS) -->
+        <div class="setting-group">
+          <label class="setting-label">Voice Output (TTS)</label>
+          <label class="toggle-label">
+            <input type="checkbox" id="ttsToggle" />
+            <span class="toggle-track"></span>
+            Speak responses aloud automatically
+          </label>
+        </div>
+
+        <!-- Hands-Free Conversation Mode -->
+        <div class="setting-group">
+          <label class="setting-label">Hands-Free Conversation Mode</label>
+          <label class="toggle-label">
+            <input type="checkbox" id="handsFreeToggle" />
+            <span class="toggle-track"></span>
+            Automatically listen after NOVA finishes speaking
+          </label>
+          <div class="setting-hint">Disabled by default. Can be stopped at any time with 1 click.</div>
+        </div>
+
+        <!-- Long-Term Memory -->
+        <div class="setting-group">
+          <label class="setting-label">Shadow Long-Term Memory</label>
+          <label class="toggle-label">
+            <input type="checkbox" id="memoryToggle" checked />
+            <span class="toggle-track"></span>
+            Inject relevant memories into conversation context
+          </label>
+          <div class="setting-hint">Stored safely in local SQLite database on your computer.</div>
+        </div>
+
+        <!-- LLM Model Switcher -->
+        <div class="setting-group">
+          <label class="setting-label">Active LLM Model</label>
+          <div class="setting-row-inline">
+            <select id="modelSelect" class="setting-select">
+              <option value="">Loading…</option>
+            </select>
+            <button class="btn-sm btn-primary" id="btnApplyModel">Apply</button>
+          </div>
+        </div>
+
+        <!-- Camera Index -->
+        <div class="setting-group">
+          <label class="setting-label">Camera Index</label>
+          <input type="number" id="camIndex" class="setting-input" value="0" min="0" max="9" />
+        </div>
+
+        <!-- About Info -->
+        <div class="setting-group info-group">
+          <div class="setting-label">System Diagnostics</div>
+          <div class="setting-info" id="aboutInfo">Loading…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════ TOOLS MODAL ══ -->
+  <div class="modal-overlay hidden" id="toolsOverlay">
+    <div class="modal hud-modal" id="toolsModal">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-sys-tag">[SYSTEM TOOLS]</span>
+          <h2>⚡ System Tools & Diagnostics</h2>
+        </div>
+        <button class="btn-icon" id="btnCloseTools">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="tools-section">
+          <div class="setting-label">Permitted Local Applications</div>
+          <div class="tools-app-grid" id="toolsAppGrid">
+            <div class="app-chip" onclick="launchApp('notepad')">📝 Notepad</div>
+            <div class="app-chip" onclick="launchApp('calculator')">🧮 Calculator</div>
+            <div class="app-chip" onclick="launchApp('explorer')">📁 File Explorer</div>
+          </div>
+        </div>
+
+        <div class="tools-section">
+          <div class="setting-label">Diagnostic Commands</div>
+          <div class="tools-btn-row">
+            <button class="btn-sm btn-primary" onclick="insertPrompt('Give me a full system status and performance summary.')">Run Diagnostics</button>
+            <button class="btn-sm btn-secondary" onclick="insertPrompt('List all memories currently stored in your SQLite database.')">Audit Memory</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast notifications -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="/static/js/nova.js"></script>
+</body>
+</html>

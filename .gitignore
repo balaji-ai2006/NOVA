@@ -216,3 +216,23 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# -- NOVA-specific ------------------------------------------------------------
+# Private data and secrets
+.env
+
+# Databases (private user data)
+data/databases/*.db
+
+# Downloaded model weights (can be re-downloaded via ollama pull)
+data/models/
+
+# Log files
+logs/
+*.log
+
+# Whisper model cache (re-downloaded on first use)
+# ~/.cache/huggingface/ is outside project so usually fine
+
+# NOVA generated files
+nova_memory.db
