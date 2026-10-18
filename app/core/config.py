@@ -10,19 +10,17 @@ from pathlib import Path
 from typing import Optional
 
 # ---------------------------------------------------------------------------
-# Project Paths
+# Project & Data Paths (Supports Dev, Portable, and Frozen Packaged builds)
 # ---------------------------------------------------------------------------
-# Resolve the project root regardless of where the process is started from.
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DATA_DIR      = PROJECT_ROOT / "data"
-DB_DIR        = DATA_DIR / "databases"
-MODELS_DIR    = DATA_DIR / "models"
-LOG_DIR       = PROJECT_ROOT / "logs"
-UI_DIR        = PROJECT_ROOT / "ui"
-
-# Make sure data dirs exist at import time (safe, idempotent)
-for _d in (DB_DIR, MODELS_DIR, LOG_DIR):
-    _d.mkdir(parents=True, exist_ok=True)
+from app.core.paths import (
+    PROJECT_ROOT,
+    APP_DATA_DIR as DATA_DIR,
+    DB_DIR,
+    MODELS_DIR,
+    APP_LOG_DIR as LOG_DIR,
+    UI_DIR,
+    IS_FROZEN,
+)
 
 # ---------------------------------------------------------------------------
 # Application Metadata
@@ -69,7 +67,7 @@ STT_DEVICE       = os.getenv("NOVA_STT_DEVICE", "auto")            # auto/cpu/cu
 # Voice (Text-to-Speech)
 # ---------------------------------------------------------------------------
 TTS_ENGINE       = os.getenv("NOVA_TTS_ENGINE", "pyttsx3")         # pyttsx3 or piper
-TTS_ENABLED      = os.getenv("NOVA_TTS_ENABLED", "false").lower() == "true"
+TTS_ENABLED      = os.getenv("NOVA_TTS_ENABLED", "true").lower() == "true"
 TTS_RATE         = int(os.getenv("NOVA_TTS_RATE", "175"))           # words per minute
 TTS_VOLUME       = float(os.getenv("NOVA_TTS_VOLUME", "0.9"))
 PIPER_DIR        = MODELS_DIR / "piper"

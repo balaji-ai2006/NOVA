@@ -67,6 +67,21 @@ async def transcribe_audio(
     }
 
 
+from fastapi import Response
+
+@router.get("/tts/audio")
+async def tts_audio(text: str):
+    """
+    Synthesize and stream high-quality delicate anime girl voice audio as MP3.
+    """
+    tts = get_tts()
+    audio_bytes = await tts.synthesize_bytes_async(text)
+    if not audio_bytes:
+        raise HTTPException(status_code=500, detail="Audio synthesis failed.")
+    return Response(content=audio_bytes, media_type="audio/mpeg")
+
+
+
 @router.post("/tts/speak")
 async def tts_speak(req: TTSRequest):
     """
@@ -79,6 +94,7 @@ async def tts_speak(req: TTSRequest):
         return {"status": "tts_disabled", "message": "Enable TTS in settings."}
     tts.clean_and_speak(req.text, block=False)
     return {"status": "speaking"}
+
 
 
 @router.post("/tts/stop")

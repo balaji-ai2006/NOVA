@@ -63,11 +63,17 @@ html, body {
   height: 100%;
   overflow: hidden;
   font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background-color: var(--bg-void);
+  background-color: #060918;
+  background-image: linear-gradient(180deg, rgba(6, 10, 28, 0.76) 0%, rgba(9, 14, 38, 0.84) 100%), url('/static/assets/nova_city_bg.jpg');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   color: var(--text-primary);
   font-size: 15px;
   line-height: 1.6;
 }
+
 
 body {
   display: flex;
@@ -746,16 +752,294 @@ body {
   to   { transform: rotate(-360deg); }
 }
 
-/* Faceted Crystal Graphic */
-.crystal-facet-wrapper {
-  position: relative;
-  width: 90px;
-  height: 90px;
+/* ──────────────────────── ANIME AI AVATAR & SPEAKING ANIMATIONS ── */
+.brand-anime-crest {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--mana-cyan);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: crystalFloat 4s ease-in-out infinite;
-  filter: drop-shadow(0 0 18px rgba(0, 240, 255, 0.7)) drop-shadow(0 0 35px rgba(124, 58, 237, 0.5));
+}
+
+.brand-anime-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.brand:hover .brand-anime-img {
+  transform: scale(1.08);
+}
+
+.mini-anime-avatar-wrapper {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  margin-right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mini-anime-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid var(--mana-cyan);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.35);
+  transition: all 0.3s ease;
+}
+
+.mini-avatar-pulse-ring {
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1.5px solid var(--mana-cyan);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.is-speaking .mini-anime-avatar,
+.mini-anime-avatar-wrapper.is-speaking .mini-anime-avatar {
+  border-color: #a855f7;
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.6), 0 0 25px rgba(0, 240, 255, 0.5);
+  animation: miniAvatarSpeak 0.3s ease-in-out infinite alternate;
+}
+
+.is-speaking .mini-avatar-pulse-ring,
+.mini-anime-avatar-wrapper.is-speaking .mini-avatar-pulse-ring {
+  opacity: 0.8;
+  animation: miniRingPulse 1s ease-out infinite;
+}
+
+@keyframes miniAvatarSpeak {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.08) translateY(-1px); }
+}
+
+@keyframes miniRingPulse {
+  0% { transform: scale(0.95); opacity: 0.9; }
+  100% { transform: scale(1.35); opacity: 0; }
+}
+
+/* Center Welcome Anime Avatar Pod & Wrapper */
+.welcome-orb-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 12px auto 26px auto;
+  position: relative;
+  z-index: 5;
+}
+
+.avatar-live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 14px;
+  margin-bottom: 14px;
+  background: rgba(11, 18, 44, 0.92);
+  border: 1px solid var(--border-neon);
+  border-radius: var(--radius-pill);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  color: var(--mana-cyan);
+  box-shadow: 0 0 14px rgba(0, 240, 255, 0.35);
+  z-index: 4;
+  white-space: nowrap;
+}
+
+.avatar-live-badge .badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--mana-cyan);
+  box-shadow: 0 0 8px var(--mana-cyan);
+}
+
+.anime-avatar-pod.is-speaking ~ .avatar-live-badge,
+.anime-avatar-pod.is-speaking .avatar-live-badge,
+.is-speaking .avatar-live-badge {
+  border-color: #c084fc;
+  color: #c084fc;
+  box-shadow: 0 0 14px rgba(192, 132, 252, 0.4);
+}
+
+.anime-avatar-pod {
+  position: relative;
+  width: 170px;
+  height: 170px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.anime-avatar-frame {
+  position: relative;
+  width: 136px;
+  height: 136px;
+  border-radius: 50%;
+  padding: 3px;
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.9), rgba(139, 92, 246, 0.8), rgba(59, 130, 246, 0.9));
+  box-shadow: 0 0 30px rgba(0, 240, 255, 0.4), 0 0 50px rgba(124, 58, 237, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.anime-avatar-visual {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  animation: avatarIdleBreathe 4s ease-in-out infinite;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.avatar-holo-scan {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: linear-gradient(180deg, transparent 60%, rgba(0, 240, 255, 0.2) 80%, transparent 100%);
+  pointer-events: none;
+  animation: avatarScanline 3.5s linear infinite;
+  mix-blend-mode: overlay;
+}
+
+.avatar-speaking-glow {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Speaking State Animation (Lip-Sync and Talking Rhythm) */
+.anime-avatar-pod.is-speaking .anime-avatar-frame {
+  transform: scale(1.06);
+  box-shadow: 0 0 35px rgba(0, 240, 255, 0.8), 0 0 65px rgba(168, 85, 247, 0.7);
+  animation: avatarTalkingBob 0.32s ease-in-out infinite alternate;
+}
+
+.anime-avatar-pod.is-speaking .anime-avatar-visual {
+  animation: avatarTalkingMouth 0.18s ease-in-out infinite alternate;
+  filter: brightness(1.1) saturate(1.15) drop-shadow(0 0 8px rgba(0, 240, 255, 0.5));
+}
+
+.anime-avatar-pod.is-speaking .avatar-speaking-glow {
+  opacity: 1;
+  border-color: rgba(0, 240, 255, 0.8);
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.8), inset 0 0 20px rgba(168, 85, 247, 0.6);
+  animation: speakingGlowPulse 0.4s ease-in-out infinite alternate;
+}
+
+/* Listening State Animation (When Balaji speaks) */
+.anime-avatar-pod.is-listening .anime-avatar-frame {
+  transform: scale(1.04);
+  box-shadow: 0 0 40px rgba(0, 240, 255, 0.9), 0 0 70px rgba(56, 189, 248, 0.5);
+  animation: avatarListenPulse 1.2s ease-in-out infinite;
+}
+
+.anime-avatar-pod.is-listening .avatar-speaking-glow {
+  opacity: 1;
+  border-color: #00f0ff;
+  box-shadow: 0 0 30px rgba(0, 240, 255, 0.9);
+}
+
+/* Sound Wave Bars Underneath Avatar */
+.avatar-sound-waves {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 5px;
+  height: 24px;
+  margin-top: 16px;
+  z-index: 3;
+}
+
+.wave-bar {
+  width: 4px;
+  height: 5px;
+  border-radius: 4px;
+  background: var(--mana-cyan);
+  box-shadow: 0 0 8px var(--mana-cyan);
+  transition: height 0.15s ease, background 0.2s ease;
+}
+
+.anime-avatar-pod.is-speaking ~ .avatar-sound-waves .bar-1,
+.anime-avatar-pod.is-speaking .avatar-sound-waves .bar-1,
+.is-speaking .avatar-sound-waves .bar-1 { animation: waveAnim 0.35s ease-in-out 0.05s infinite alternate; }
+.anime-avatar-pod.is-speaking ~ .avatar-sound-waves .bar-2,
+.anime-avatar-pod.is-speaking .avatar-sound-waves .bar-2,
+.is-speaking .avatar-sound-waves .bar-2 { animation: waveAnim 0.4s ease-in-out 0.15s infinite alternate; }
+.anime-avatar-pod.is-speaking ~ .avatar-sound-waves .bar-3,
+.anime-avatar-pod.is-speaking .avatar-sound-waves .bar-3,
+.is-speaking .avatar-sound-waves .bar-3 { animation: waveAnim 0.3s ease-in-out 0.1s infinite alternate; }
+.anime-avatar-pod.is-speaking ~ .avatar-sound-waves .bar-4,
+.anime-avatar-pod.is-speaking .avatar-sound-waves .bar-4,
+.is-speaking .avatar-sound-waves .bar-4 { animation: waveAnim 0.45s ease-in-out 0.2s infinite alternate; }
+.anime-avatar-pod.is-speaking ~ .avatar-sound-waves .bar-5,
+.anime-avatar-pod.is-speaking .avatar-sound-waves .bar-5,
+.is-speaking .avatar-sound-waves .bar-5 { animation: waveAnim 0.32s ease-in-out 0.12s infinite alternate; }
+.anime-avatar-pod.is-speaking ~ .avatar-sound-waves .bar-6,
+.anime-avatar-pod.is-speaking .avatar-sound-waves .bar-6,
+.is-speaking .avatar-sound-waves .bar-6 { animation: waveAnim 0.38s ease-in-out 0.22s infinite alternate; }
+.anime-avatar-pod.is-speaking ~ .avatar-sound-waves .bar-7,
+.anime-avatar-pod.is-speaking .avatar-sound-waves .bar-7,
+.is-speaking .avatar-sound-waves .bar-7 { animation: waveAnim 0.33s ease-in-out 0.08s infinite alternate; }
+
+.anime-avatar-pod.is-listening ~ .avatar-sound-waves .wave-bar,
+.anime-avatar-pod.is-listening .wave-bar,
+.is-listening .avatar-sound-waves .wave-bar {
+  background: #38bdf8;
+  animation: waveListen 0.8s ease-in-out infinite alternate;
+}
+
+
+/* Avatar Keyframes */
+@keyframes avatarIdleBreathe {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50%      { transform: translateY(-4px) scale(1.02); }
+}
+
+@keyframes avatarTalkingBob {
+  0%   { transform: scale(1.04) translateY(0); }
+  100% { transform: scale(1.08) translateY(-3px); }
+}
+
+@keyframes avatarTalkingMouth {
+  0%   { transform: scaleY(1); }
+  100% { transform: scaleY(0.97) scaleX(1.01); }
+}
+
+@keyframes avatarListenPulse {
+  0%, 100% { transform: scale(1.03); }
+  50%      { transform: scale(1.07); }
+}
+
+@keyframes avatarScanline {
+  0%   { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+@keyframes speakingGlowPulse {
+  0%   { opacity: 0.6; transform: scale(0.98); }
+  100% { opacity: 1; transform: scale(1.05); }
 }
 
 .crystal-svg {
@@ -897,6 +1181,21 @@ body {
   color: var(--mana-cyan);
   box-shadow: 0 0 10px rgba(0, 240, 255, 0.35);
 }
+
+.msg-avatar.msg-anime-avatar-box {
+  padding: 0;
+  overflow: hidden;
+  border-radius: 50%;
+  border: 1.5px solid var(--mana-cyan);
+}
+
+.msg-avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 
 .message.user .msg-avatar {
   background: linear-gradient(135deg, #7c3aed, #4f46e5);

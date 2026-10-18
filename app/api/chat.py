@@ -15,6 +15,7 @@ from typing import Optional
 
 from app.brain.ollama_client import OllamaClient
 from app.memory.store import MemoryStore
+from app.tools.automations import handle_intent
 from app.core.config import DEFAULT_LLM_MODEL
 from app.core.logger import get_logger
 
@@ -65,6 +66,30 @@ async def send_message(req: ChatRequest):
     extra_ctx: Optional[str] = None
     if req.include_memory:
         extra_ctx = _memory.as_context_string(query=req.message) or None
+
+    # Check if this is a direct automation action (YouTube, Chrome, Memory, etc.)
+    is_action, action_reply = handle_intent(req.message)
+    if is_action:
+        def action_stream():
+            data = json.dumps({"token": action_reply, "done": False})
+            yield f"data: {data}\n\n"
+            final = json.dumps({
+                "token": "",
+                "done": True,
+                "model": "NOVA-Automation",
+                "session_id": req.session_id,
+            })
+            yield f"data: {final}\n\n"
+
+        return StreamingResponse(
+            action_stream(),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "X-Accel-Buffering": "no",
+                "Access-Control-Allow-Origin": "*",
+            },
+        )
 
     def event_stream():
         try:

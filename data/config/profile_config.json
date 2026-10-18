@@ -1,0 +1,19 @@
+{
+  "profile_type": "personal",
+  "app_name": "NOVA",
+  "version": "0.1.0",
+  "first_run_completed": true,
+  "auto_start_enabled": true,
+  "wake_word_enabled": true,
+  "require_tool_confirmation": true,
+  "online_services_allowed": true,
+  "allowed_apps": [
+    "notepad",
+    "calculator",
+    "explorer",
+    "browser",
+    "chrome"
+  ],
+  "default_language": "en",
+  "telemetry_enabled": false
+}

@@ -145,6 +145,7 @@ class WhisperSTT:
                 best_of=1,
                 temperature=0.0,
                 vad_filter=True,              # voice-activity detection = skip silence
+                initial_prompt="Nova, Balaji, YouTube, Chrome, Google, Marathi, Hindi, YouTube var, gaana lav, gaan lav, play song, open kar, suru kar, यूट्यूब, गाणं लाव, गाणी, सर्च कर",
             )
             text = " ".join(s.text.strip() for s in segments).strip()
             detected = getattr(info, "language", "unknown") if info else "unknown"

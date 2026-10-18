@@ -44,6 +44,14 @@ def main():
     logger.info("Starting NOVA at %s", url)
     open_browser_after_delay(url)
 
+    # Start Background Voice Assistant Daemon ("Nova" wake-word listener)
+    try:
+        from app.voice.listener import start_daemon_background
+        logger.info("Starting background Voice Daemon (continuous 'Nova' listener)...")
+        start_daemon_background()
+    except Exception as exc:
+        logger.warning("Could not start background voice daemon: %s", exc)
+
     try:
         import uvicorn
     except ImportError:

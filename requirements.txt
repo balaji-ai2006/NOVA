@@ -45,7 +45,8 @@ pytest>=8.0.0
 pytest-asyncio>=0.23.0
 httpx>=0.27.0                    # also used for async test client
 
-# ── Optional: Microphone recording ───────────────────────────────────────────
+# ── Microphone recording ──────────────────────────────────────────────────────
+sounddevice>=0.5.0
 # pyaudio>=0.2.14
 # If pip install pyaudio fails on Windows, try:
 #   pip install pipwin && pipwin install pyaudio

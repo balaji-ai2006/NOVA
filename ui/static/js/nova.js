@@ -118,6 +118,33 @@ const aboutInfo           = $('aboutInfo');
 const toolsOverlay        = $('toolsOverlay');
 const btnCloseTools       = $('btnCloseTools');
 
+// Anime Avatar Pod Elements
+const animeAvatarPod      = $('animeAvatarPod');
+const miniAvatarWrapper   = $('miniAvatarWrapper');
+const avatarLiveLabel     = $('avatarLiveLabel');
+const avatarSoundWaves    = $('avatarSoundWaves');
+
+function setAvatarState(mode = 'idle') {
+  if (animeAvatarPod) {
+    animeAvatarPod.classList.remove('is-idle', 'is-speaking', 'is-listening');
+    animeAvatarPod.classList.add(`is-${mode}`);
+  }
+  if (miniAvatarWrapper) {
+    miniAvatarWrapper.classList.toggle('is-speaking', mode === 'speaking');
+    miniAvatarWrapper.classList.toggle('is-listening', mode === 'listening');
+  }
+  if (avatarLiveLabel) {
+    if (mode === 'speaking') {
+      avatarLiveLabel.textContent = 'NOVA SPEAKING';
+    } else if (mode === 'listening') {
+      avatarLiveLabel.textContent = 'LISTENING...';
+    } else {
+      avatarLiveLabel.textContent = 'AI AWAKENED';
+    }
+  }
+}
+
+
 /* ─────────────────────────────── API Helpers ────────── */
 const API = {
   base: '',
@@ -201,9 +228,13 @@ function appendMessage(role, content, id = null) {
   el.className = `message ${role}`;
   if (id) el.id = id;
 
-  const avatar = role === 'user' ? '👤' : '◈';
+  const avatarHtml = role === 'user' 
+    ? '👤' 
+    : '<img src="/static/assets/nova_anime_avatar.png" alt="NOVA" class="msg-avatar-img">';
+  const avatarBoxClass = role === 'assistant' ? 'msg-avatar msg-anime-avatar-box' : 'msg-avatar';
+
   el.innerHTML = `
-    <div class="msg-avatar">${avatar}</div>
+    <div class="${avatarBoxClass}">${avatarHtml}</div>
     <div class="msg-body-wrapper">
       <div class="msg-bubble" data-bubble></div>
       <div class="msg-meta">
@@ -254,7 +285,7 @@ function appendTypingIndicator() {
   el.className = 'message assistant';
   el.id = 'typingIndicator';
   el.innerHTML = `
-    <div class="msg-avatar">◈</div>
+    <div class="msg-avatar msg-anime-avatar-box"><img src="/static/assets/nova_anime_avatar.png" alt="NOVA" class="msg-avatar-img"></div>
     <div class="typing-indicator">
       <div class="typing-dot"></div>
       <div class="typing-dot"></div>
@@ -269,7 +300,7 @@ function appendError(msg) {
   hideWelcome();
   const el = document.createElement('div');
   el.className = 'message assistant';
-  el.innerHTML = `<div class="msg-avatar">◈</div><div class="msg-error">⚠ ${escapeHtml(msg)}</div>`;
+  el.innerHTML = `<div class="msg-avatar msg-anime-avatar-box"><img src="/static/assets/nova_anime_avatar.png" alt="NOVA" class="msg-avatar-img"></div><div class="msg-error">⚠ ${escapeHtml(msg)}</div>`;
   messages.appendChild(el);
   scrollToBottom();
 }
@@ -418,9 +449,28 @@ function formatLangCode(code) {
   return c.toUpperCase();
 }
 
+function setAvatarState(mode) {
+  const pod = $('animeAvatarPod');
+  const mini = $('miniAvatarWrapper');
+  const label = $('avatarLiveLabel');
+
+  [pod, mini].forEach(el => {
+    if (!el) return;
+    el.classList.remove('is-idle', 'is-speaking', 'is-listening');
+    el.classList.add(`is-${mode}`);
+  });
+
+  if (label) {
+    if (mode === 'speaking') label.textContent = 'SPEAKING...';
+    else if (mode === 'listening') label.textContent = 'LISTENING...';
+    else label.textContent = 'AI AWAKENED';
+  }
+}
+
 /* ─────────────────────────────── Speech Input (STT) ─── */
 function updateVoiceUI(statusText, isRecording = false) {
   if (isRecording) {
+    setAvatarState('listening');
     btnMic.classList.add('recording');
     $('statusMic').textContent = '🔴 Listening…';
     voiceStatusPill.classList.remove('hidden');
@@ -429,6 +479,9 @@ function updateVoiceUI(statusText, isRecording = false) {
     btnMic.classList.remove('recording');
     $('statusMic').textContent = 'Ready';
     voiceStatusPill.classList.add('hidden');
+    if (!state.isSpeaking) {
+      setAvatarState('idle');
+    }
   }
 }
 
@@ -510,17 +563,11 @@ async function startRecording() {
 
         if (data.transcription && data.transcription.trim()) {
           const rawText = data.transcription.trim();
-          const detectedCode = data.detected_language || (state.sttLanguage !== 'auto' ? state.sttLanguage : 'unknown');
-          const detectedName = formatLangCode(detectedCode);
-          const conf = data.confidence !== undefined ? Math.round(data.confidence * 100) : null;
-
-          // Requirement 8: Do not silently translate! Display exact recognized text.
           chatInput.value = rawText;
           autoResize(chatInput);
 
-          // Requirement 9: Show review dock to let user edit transcription before sending
-          showSpeechReviewDock(rawText, detectedName, conf);
-
+          // Instant answer as requested by user ("as soon as I speak, she should answer")
+          sendMessage(rawText, true);
         } else {
           toast('No clear speech detected. Please speak closer to the mic.', 'info');
         }
@@ -623,6 +670,7 @@ if ('speechSynthesis' in window) {
 
 function setSpeakingState(isSpeaking) {
   state.isSpeaking = isSpeaking;
+  setAvatarState(isSpeaking ? 'speaking' : (state.isRecording ? 'listening' : 'idle'));
   if (isSpeaking) {
     btnStopTTS.classList.remove('hidden');
     btnTTS.classList.add('active');
@@ -632,6 +680,20 @@ function setSpeakingState(isSpeaking) {
       btnTTS.classList.remove('active');
     }
   }
+}
+
+let currentAudio = null;
+
+function stopSpeaking() {
+  if (currentAudio) {
+    try { currentAudio.pause(); currentAudio.currentTime = 0; } catch (e) {}
+    currentAudio = null;
+  }
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.cancel();
+  }
+  API.post('/api/voice/tts/stop', {}).catch(() => {});
+  setSpeakingState(false);
 }
 
 async function speakText(rawText, onComplete = null) {
@@ -644,75 +706,85 @@ async function speakText(rawText, onComplete = null) {
   stopSpeaking();
   setSpeakingState(true);
 
-  if ('speechSynthesis' in window) {
-    try {
-      if (window.speechSynthesis.paused) {
-        window.speechSynthesis.resume();
-      }
-    } catch (e) {}
+  // 1. Try high-fidelity delicate anime voice from server (/api/voice/tts/audio)
+  try {
+    const audioUrl = `/api/voice/tts/audio?text=${encodeURIComponent(clean)}`;
+    const audio = new Audio(audioUrl);
+    currentAudio = audio;
 
-    const utt = new SpeechSynthesisUtterance(clean);
-    utt.rate = 1.0;
-
-    const hasDevanagari = /[\u0900-\u097F]/.test(clean);
-    const voices = window.speechSynthesis.getVoices();
-
-    if (hasDevanagari) {
-      const mrVoice = voices.find(v => v.lang === 'mr-IN' || v.lang.startsWith('mr') || (v.name && v.name.toLowerCase().includes('marathi')));
-      const hiVoice = voices.find(v => v.lang === 'hi-IN' || v.lang.startsWith('hi') || (v.name && v.name.toLowerCase().includes('hindi')));
-      const devVoice = mrVoice || hiVoice;
-      if (devVoice) {
-        utt.voice = devVoice;
-        utt.lang = devVoice.lang;
-      } else {
-        utt.lang = 'mr-IN';
-      }
-    } else {
-      const enVoice = voices.find(v => v.lang === 'en-US' || v.lang === 'en-IN' || v.lang.startsWith('en'));
-      if (enVoice) {
-        utt.voice = enVoice;
-        utt.lang = enVoice.lang;
-      } else {
-        utt.lang = 'en-US';
-      }
-    }
-
-    utt.onend = () => {
+    audio.onended = () => {
+      currentAudio = null;
       setSpeakingState(false);
       if (onComplete) onComplete();
     };
 
-    utt.onerror = async (e) => {
-      console.warn('Browser TTS error, fallback to local backend TTS:', e);
-      try {
-        await API.post('/api/voice/tts/speak', { text: clean });
-      } catch (err) {
-        console.warn('Server TTS failed:', err);
-      } finally {
-        setSpeakingState(false);
-        if (onComplete) onComplete();
-      }
+    audio.onerror = () => {
+      console.warn('Audio streaming failed, falling back to Web Speech API');
+      currentAudio = null;
+      speakWithWebSpeech(clean, onComplete);
     };
 
-    window.speechSynthesis.speak(utt);
-  } else {
-    try {
-      await API.post('/api/voice/tts/speak', { text: clean });
-    } catch (e) {
-      console.warn('Server TTS failed:', e);
-    } finally {
-      setSpeakingState(false);
-      if (onComplete) onComplete();
-    }
+    await audio.play();
+    return;
+  } catch (err) {
+    console.warn('Primary anime audio play error:', err);
+    speakWithWebSpeech(clean, onComplete);
   }
 }
 
-function stopSpeaking() {
-  if ('speechSynthesis' in window) {
-    window.speechSynthesis.cancel();
+function speakWithWebSpeech(clean, onComplete = null) {
+  if (!('speechSynthesis' in window)) {
+    setSpeakingState(false);
+    if (onComplete) onComplete();
+    return;
   }
-  API.post('/api/voice/tts/stop', {}).catch(() => {});
-  setSpeakingState(false);
+
+  try {
+    if (window.speechSynthesis.paused) {
+      window.speechSynthesis.resume();
+    }
+  } catch (e) {}
+
+  const utt = new SpeechSynthesisUtterance(clean);
+  utt.rate = 1.05;
+  utt.pitch = 1.25; // Sweet anime assistant pitch
+
+  const hasDevanagari = /[\u0900-\u097F]/.test(clean);
+  const voices = window.speechSynthesis.getVoices();
+
+  if (hasDevanagari) {
+    const mrVoice = voices.find(v => v.lang === 'mr-IN' || v.lang.startsWith('mr') || (v.name && v.name.toLowerCase().includes('marathi')));
+    const hiVoice = voices.find(v => v.lang === 'hi-IN' || v.lang.startsWith('hi') || (v.name && v.name.toLowerCase().includes('hindi')));
+    const devVoice = mrVoice || hiVoice;
+    if (devVoice) {
+      utt.voice = devVoice;
+      utt.lang = devVoice.lang;
+    } else {
+      utt.lang = 'mr-IN';
+    }
+  } else {
+    // Prioritize natural female anime-like voice
+    const femaleEn = voices.find(v => (v.lang === 'en-US' || v.lang === 'en-IN' || v.lang.startsWith('en')) && /ana|natural|zira|female|samantha|victoria|karen/i.test(v.name));
+    const enVoice = femaleEn || voices.find(v => v.lang === 'en-US' || v.lang === 'en-IN' || v.lang.startsWith('en'));
+    if (enVoice) {
+      utt.voice = enVoice;
+      utt.lang = enVoice.lang;
+    } else {
+      utt.lang = 'en-US';
+    }
+  }
+
+  utt.onend = () => {
+    setSpeakingState(false);
+    if (onComplete) onComplete();
+  };
+
+  utt.onerror = () => {
+    setSpeakingState(false);
+    if (onComplete) onComplete();
+  };
+
+  window.speechSynthesis.speak(utt);
 }
 
 /* ─────────────────────────────── Language Selection ─── */
@@ -1139,6 +1211,149 @@ if (toolsOverlay) {
   });
 }
 
+// About Modal & First-Run Wizard DOM Elements
+const navAbout = $('navAbout');
+const aboutOverlay = $('aboutOverlay');
+const btnCloseAbout = $('btnCloseAbout');
+const btnCloseAboutBtn = $('btnCloseAboutBtn');
+const btnLaunchWizardFromAbout = $('btnLaunchWizardFromAbout');
+
+const wizardOverlay = $('wizardOverlay');
+const btnCloseWizard = $('btnCloseWizard');
+const btnCancelWizard = $('btnCancelWizard');
+const btnSaveWizard = $('btnSaveWizard');
+const wizardHwSummary = $('wizardHwSummary');
+const wizardModelSelect = $('wizardModelSelect');
+const wizardToolConfirmToggle = $('wizardToolConfirmToggle');
+const wizardWakeWordToggle = $('wizardWakeWordToggle');
+const wizardAutoStartToggle = $('wizardAutoStartToggle');
+
+async function openAboutModal() {
+  if (navAbout) setActiveNav(navAbout);
+  if (!aboutOverlay) return;
+  aboutOverlay.classList.remove('hidden');
+
+  try {
+    const res = await fetch('/api/status/about');
+    if (!res.ok) throw new Error('Failed to load about status');
+    const data = await res.json();
+
+    const versionBadge = $('aboutVersionBadge');
+    if (versionBadge) versionBadge.textContent = `v${data.product?.version || '0.1.0'}`;
+
+    const profileChip = $('aboutProfileChip');
+    if (profileChip) profileChip.textContent = `Profile: ${(data.product?.profile || 'personal').toUpperCase()}`;
+
+    const tierChip = $('aboutTierChip');
+    if (tierChip) tierChip.textContent = `Hardware Tier: ${(data.hardware?.hardware_tier || 'balanced').toUpperCase()}`;
+
+    // Render verified features
+    const list = $('verifiedFeaturesList');
+    if (list && data.verified_features) {
+      list.innerHTML = Object.entries(data.verified_features).map(([key, feat]) => {
+        const statusBadge = feat.verified
+          ? `<span style="background: rgba(34,197,94,0.15); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 0.75rem;">VERIFIED</span>`
+          : `<span style="background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 0.75rem;">OFFLINE / PENDING</span>`;
+        return `
+          <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02); padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.04);">
+            <div>
+              <div style="font-weight: 600; color: #f8fafc;">${escapeHtml(feat.name)}</div>
+              <div style="font-size: 0.75rem; color: #94a3b8;">${escapeHtml(feat.details || '')}</div>
+            </div>
+            <div>${statusBadge}</div>
+          </div>`;
+      }).join('');
+    }
+
+    // Render hardware diagnostics
+    const hwDetails = $('aboutHardwareDetails');
+    if (hwDetails && data.hardware) {
+      const hw = data.hardware;
+      hwDetails.innerHTML = `
+        OS: ${escapeHtml(hw.os_name || 'Windows')} (${escapeHtml(hw.os_version || '')}) | Architecture: ${escapeHtml(hw.architecture || '')}<br>
+        CPU: ${hw.cpu_cores_physical || hw.cpu_cores_logical || 4} Physical / ${hw.cpu_cores_logical || 4} Logical Cores<br>
+        RAM: ${hw.ram_total_gb || 8} GB Total (${hw.ram_available_gb || 4} GB Free)<br>
+        GPU: ${escapeHtml(hw.gpu_name || 'Integrated Graphics / No dedicated GPU')} (${hw.vram_mb ? hw.vram_mb + ' MB VRAM' : 'System RAM Shared'})<br>
+        Recommended Model: <strong>${escapeHtml(hw.recommended_llm || 'llama3.2:3b')}</strong><br>
+        Data Root: ${escapeHtml(data.build?.data_directory || '')}
+      `;
+    }
+  } catch (err) {
+    console.error('About fetch error:', err);
+  }
+}
+
+async function openWizardModal() {
+  if (aboutOverlay) aboutOverlay.classList.add('hidden');
+  if (wizardOverlay) wizardOverlay.classList.remove('hidden');
+
+  try {
+    const res = await fetch('/api/status/about');
+    if (!res.ok) return;
+    const data = await res.json();
+    const hw = data.hardware || {};
+
+    if (wizardHwSummary) {
+      wizardHwSummary.innerHTML = `
+        <strong>Detected:</strong> ${escapeHtml(hw.cpu_cores_logical || 4)} CPU Cores, ${hw.ram_total_gb || 8} GB RAM${hw.gpu_name ? ', ' + escapeHtml(hw.gpu_name) + ' (' + (hw.vram_mb || 0) + ' MB VRAM)' : ''}.<br>
+        <strong>Tier:</strong> ${(hw.hardware_tier || 'balanced').toUpperCase()} &bull; <strong>Recommended Model:</strong> ${escapeHtml(hw.recommended_llm || 'llama3.2:3b')}
+      `;
+    }
+
+    if (wizardModelSelect && hw.recommended_llm) {
+      wizardModelSelect.value = hw.recommended_llm;
+    }
+  } catch (err) {
+    console.error('Wizard open error:', err);
+  }
+}
+
+async function saveWizard() {
+  try {
+    const payload = {
+      first_run_completed: true,
+      preferred_model: wizardModelSelect ? wizardModelSelect.value : 'llama3.2:3b',
+      require_tool_confirmation: wizardToolConfirmToggle ? wizardToolConfirmToggle.checked : true,
+      wake_word_enabled: wizardWakeWordToggle ? wizardWakeWordToggle.checked : false,
+      auto_start_enabled: wizardAutoStartToggle ? wizardAutoStartToggle.checked : false,
+    };
+
+    const res = await fetch('/api/status/profile', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    if (res.ok) {
+      toast('Setup configuration saved successfully!', 'success');
+      if (wizardOverlay) wizardOverlay.classList.add('hidden');
+      await pollStatus();
+    } else {
+      toast('Failed to save configuration.', 'error');
+    }
+  } catch (err) {
+    toast(`Configuration error: ${err.message}`, 'error');
+  }
+}
+
+if (navAbout) navAbout.addEventListener('click', openAboutModal);
+if (btnCloseAbout) btnCloseAbout.addEventListener('click', () => aboutOverlay?.classList.add('hidden'));
+if (btnCloseAboutBtn) btnCloseAboutBtn.addEventListener('click', () => aboutOverlay?.classList.add('hidden'));
+if (aboutOverlay) {
+  aboutOverlay.addEventListener('click', (e) => {
+    if (e.target === aboutOverlay) aboutOverlay.classList.add('hidden');
+  });
+}
+if (btnLaunchWizardFromAbout) btnLaunchWizardFromAbout.addEventListener('click', openWizardModal);
+if (btnCloseWizard) btnCloseWizard.addEventListener('click', () => wizardOverlay?.classList.add('hidden'));
+if (btnCancelWizard) btnCancelWizard.addEventListener('click', () => wizardOverlay?.classList.add('hidden'));
+if (btnSaveWizard) btnSaveWizard.addEventListener('click', saveWizard);
+if (wizardOverlay) {
+  wizardOverlay.addEventListener('click', (e) => {
+    if (e.target === wizardOverlay) wizardOverlay.classList.add('hidden');
+  });
+}
+
 // Memory CRUD
 btnSaveMemory.addEventListener('click', saveMemory);
 memoryInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') saveMemory(); });
@@ -1151,5 +1366,17 @@ btnClearMemory.addEventListener('click', clearAllMemories);
   await pollStatus();
   await loadMemories();
   setInterval(pollStatus, 15_000);
+
+  // Check if first-run setup is required
+  try {
+    const res = await fetch('/api/status/about');
+    if (res.ok) {
+      const aboutData = await res.json();
+      if (aboutData.product?.profile === 'universal' && !aboutData.product?.first_run_completed) {
+        openWizardModal();
+      }
+    }
+  } catch (_) {}
+
   console.log('%c[SYSTEM AWAKENED] NOVA Shadow Monarch AI System online.', 'color:#00f0ff;font-weight:bold;font-size:15px;');
 })();

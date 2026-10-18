@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/static/css/nova.css" />
+  <link rel="stylesheet" href="/static/css/nova.css?v=0.1.3" />
 </head>
 <body class="solo-leveling-theme">
   <!-- Subtle ambient particle background -->
@@ -18,26 +18,8 @@
   <aside class="sidebar hud-panel" id="sidebar">
     <!-- Brand -->
     <div class="brand">
-      <div class="brand-monarch-crest" id="brandOrb">
-        <svg viewBox="0 0 44 44" fill="none" class="crest-svg">
-          <circle cx="22" cy="22" r="20" stroke="url(#monarchGrad)" stroke-width="1.5" stroke-dasharray="4 2"/>
-          <polygon points="22,6 36,22 22,38 8,22" stroke="url(#monarchGrad)" stroke-width="1.5" fill="rgba(6,182,212,0.08)"/>
-          <circle cx="22" cy="22" r="5" fill="url(#coreGrad)"/>
-          <line x1="22" y1="2" x2="22" y2="42" stroke="url(#monarchGrad)" stroke-width="1" stroke-opacity="0.4"/>
-          <line x1="2" y1="22" x2="42" y2="22" stroke="url(#monarchGrad)" stroke-width="1" stroke-opacity="0.4"/>
-          <defs>
-            <linearGradient id="monarchGrad" x1="0" y1="0" x2="44" y2="44" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#00f0ff"/>
-              <stop offset="50%" stop-color="#8b5cf6"/>
-              <stop offset="100%" stop-color="#3b82f6"/>
-            </linearGradient>
-            <radialGradient id="coreGrad" cx="22" cy="22" r="6" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#ffffff"/>
-              <stop offset="60%" stop-color="#00f0ff"/>
-              <stop offset="100%" stop-color="#7c3aed"/>
-            </radialGradient>
-          </defs>
-        </svg>
+      <div class="brand-monarch-crest brand-anime-crest" id="brandOrb" style="width:44px; height:44px; min-width:44px; border-radius:50%; overflow:hidden; flex-shrink:0;">
+        <img src="/static/assets/nova_anime_avatar.png" alt="NOVA Anime AI" class="brand-anime-img" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;" />
       </div>
       <div>
         <div class="brand-system-tag">[SYSTEM INTERFACE]</div>
@@ -65,6 +47,9 @@
       </button>
       <button class="nav-item" id="navSettings" title="System Configuration">
         <span class="nav-icon">⚙</span><span class="nav-label">Settings</span>
+      </button>
+      <button class="nav-item" id="navAbout" title="Product Information & Verified Features">
+        <span class="nav-icon">ℹ</span><span class="nav-label">About</span>
       </button>
     </nav>
 
@@ -157,10 +142,14 @@
     <header class="top-bar hud-topbar">
       <div class="top-bar-left">
         <button class="btn-icon sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">☰</button>
+        <div class="mini-anime-avatar-wrapper" id="miniAvatarWrapper" title="NOVA Voice Assistant" style="width:36px; height:36px; min-width:36px; border-radius:50%; overflow:hidden; flex-shrink:0;">
+          <img src="/static/assets/nova_anime_avatar.png" alt="NOVA" class="mini-anime-avatar" id="miniAnimeAvatar" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;" />
+          <span class="mini-avatar-pulse-ring"></span>
+        </div>
         <div class="top-bar-title">
           <span class="monarch-sys-pill">[SYSTEM]</span>
           <span class="nova-gradient-text">NOVA</span>
-          <span class="top-bar-subtitle">Shadow Monarch Core</span>
+          <span class="top-bar-subtitle">Anime AI Assistant</span>
         </div>
       </div>
 
@@ -177,55 +166,39 @@
 
     <!-- Chat Area -->
     <section class="chat-area" id="chatArea">
-      <!-- Welcome screen with Animated Crystalline Energy Core -->
+      <!-- Welcome screen with Animated Anime Girl AI Avatar Pod -->
       <div class="welcome-screen" id="welcomeScreen">
         <div class="welcome-orb-wrapper">
-          <div class="crystalline-core" id="welcomeOrb">
-            <!-- Rotating Runic Hex Rings -->
+          <!-- Speaking / Listening Status Tag -->
+          <div class="avatar-live-badge" id="avatarLiveBadge">
+            <span class="badge-dot"></span>
+            <span class="badge-label" id="avatarLiveLabel">AI AWAKENED</span>
+          </div>
+
+          <div class="anime-avatar-pod is-idle" id="animeAvatarPod">
+            <!-- Rotating Hologram Mana Rings -->
             <div class="runic-ring ring-outer"></div>
             <div class="runic-ring ring-middle"></div>
             <div class="runic-ring ring-inner"></div>
 
-            <!-- Geometric Crystalline Core -->
-            <div class="crystal-facet-wrapper">
-              <svg viewBox="0 0 100 100" class="crystal-svg">
-                <defs>
-                  <linearGradient id="crystalGlowA" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#00f0ff" stop-opacity="0.9"/>
-                    <stop offset="50%" stop-color="#3b82f6" stop-opacity="0.8"/>
-                    <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0.95"/>
-                  </linearGradient>
-                  <linearGradient id="crystalGlowB" x1="100%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
-                    <stop offset="50%" stop-color="#00f0ff" stop-opacity="0.7"/>
-                    <stop offset="100%" stop-color="#7c3aed" stop-opacity="0.85"/>
-                  </linearGradient>
-                  <radialGradient id="manaPulse" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stop-color="#00f0ff" stop-opacity="1"/>
-                    <stop offset="40%" stop-color="#38bdf8" stop-opacity="0.6"/>
-                    <stop offset="80%" stop-color="#8b5cf6" stop-opacity="0.2"/>
-                    <stop offset="100%" stop-color="#030712" stop-opacity="0"/>
-                  </radialGradient>
-                </defs>
-
-                <!-- Mana Aura -->
-                <circle cx="50" cy="50" r="46" fill="url(#manaPulse)" class="mana-aura-pulse"/>
-
-                <!-- Hexagonal Runic Frame -->
-                <polygon points="50,6 88,28 88,72 50,94 12,72 12,28" stroke="#00f0ff" stroke-width="1" stroke-dasharray="6 3" fill="none" opacity="0.65"/>
-                <polygon points="50,14 81,32 81,68 50,86 19,68 19,32" stroke="#8b5cf6" stroke-width="1" fill="rgba(11,16,38,0.5)"/>
-
-                <!-- Diamond Crystalline Facets -->
-                <polygon points="50,18 76,50 50,82 24,50" fill="url(#crystalGlowA)" stroke="#00f0ff" stroke-width="1.5"/>
-                <polygon points="50,18 76,50 50,50" fill="url(#crystalGlowB)" opacity="0.85"/>
-                <polygon points="50,18 24,50 50,50" fill="url(#crystalGlowA)" opacity="0.7"/>
-                <polygon points="50,50 76,50 50,82" fill="url(#crystalGlowA)" opacity="0.6"/>
-                <polygon points="50,50 24,50 50,82" fill="url(#crystalGlowB)" opacity="0.9"/>
-
-                <!-- Core Light Beacon -->
-                <circle cx="50" cy="50" r="4" fill="#ffffff" filter="drop-shadow(0 0 6px #00f0ff)"/>
-              </svg>
+            <!-- Anime Avatar Frame & Image -->
+            <div class="anime-avatar-frame" id="animeAvatarFrame" style="width:136px; height:136px; min-width:136px; max-width:136px; border-radius:50%; overflow:hidden; position:relative;">
+              <img src="/static/assets/nova_anime_avatar.png" alt="NOVA Anime AI Assistant" class="anime-avatar-visual" id="animeAvatarVisual" style="width:100%; height:100%; border-radius:50%; object-fit:cover; display:block;" />
+              <!-- Holographic scanline and reactive talking glow -->
+              <div class="avatar-holo-scan"></div>
+              <div class="avatar-speaking-glow" id="avatarSpeakingGlow"></div>
             </div>
+          </div>
+
+          <!-- Glowing Soundwave Visualizer Bars with clean spacing below avatar -->
+          <div class="avatar-sound-waves" id="avatarSoundWaves">
+            <span class="wave-bar bar-1"></span>
+            <span class="wave-bar bar-2"></span>
+            <span class="wave-bar bar-3"></span>
+            <span class="wave-bar bar-4"></span>
+            <span class="wave-bar bar-5"></span>
+            <span class="wave-bar bar-6"></span>
+            <span class="wave-bar bar-7"></span>
           </div>
         </div>
 
@@ -303,7 +276,6 @@
           <line x1="12" y1="19" x2="12" y2="23"/>
           <line x1="8" y1="23" x2="16" y2="23"/>
         </svg>
-        <span class="mic-tooltip">Click to speak</span>
       </button>
 
       <div class="input-wrapper">
@@ -463,6 +435,109 @@
             <button class="btn-sm btn-primary" onclick="insertPrompt('Give me a full system status and performance summary.')">Run Diagnostics</button>
             <button class="btn-sm btn-secondary" onclick="insertPrompt('List all memories currently stored in your SQLite database.')">Audit Memory</button>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════ ABOUT MODAL ══ -->
+  <div class="modal-overlay hidden" id="aboutOverlay">
+    <div class="modal hud-modal" id="aboutModal" style="max-width: 680px;">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-sys-tag">[PRODUCT & ARCHITECTURE]</span>
+          <h2>ℹ About NOVA</h2>
+        </div>
+        <button class="btn-icon" id="btnCloseAbout">✕</button>
+      </div>
+      <div class="modal-body" id="aboutModalBody">
+        <div style="text-align: center; margin-bottom: 1.5rem;">
+          <h3 style="font-size: 1.4rem; color: #00f0ff; margin-bottom: 0.3rem;">NOVA <span class="hud-status-badge" id="aboutVersionBadge">v0.1.0</span></h3>
+          <p style="color: #94a3b8; font-size: 0.9rem;">Personal Offline-First Multimodal AI Assistant</p>
+          <div style="margin-top: 0.5rem; display: flex; gap: 0.5rem; justify-content: center;" id="aboutBadges">
+            <span class="app-chip" id="aboutProfileChip">Profile: Personal</span>
+            <span class="app-chip" id="aboutTierChip">Hardware Tier: Balanced</span>
+          </div>
+        </div>
+
+        <div class="tools-section">
+          <div class="setting-label">Verified Capabilities & Component Health</div>
+          <div id="verifiedFeaturesList" style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem;">
+            <!-- Rendered dynamically from /api/status/about -->
+            <div style="color: #94a3b8;">Scanning verified components…</div>
+          </div>
+        </div>
+
+        <div class="tools-section" style="margin-top: 1rem;">
+          <div class="setting-label">System Architecture & Hardware</div>
+          <div id="aboutHardwareDetails" style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; background: rgba(0,0,0,0.3); padding: 0.75rem; border-radius: 6px; border: 1px solid rgba(255,255,255,0.06); color: #cbd5e1;">
+            Loading hardware diagnostics…
+          </div>
+        </div>
+
+        <div class="tools-section" style="margin-top: 1rem; display: flex; justify-content: space-between; align-items: center;">
+          <button class="btn-sm btn-secondary" id="btnLaunchWizardFromAbout">Launch Setup Wizard</button>
+          <button class="btn-sm btn-primary" id="btnCloseAboutBtn">Done</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════ FIRST-RUN SETUP WIZARD MODAL ══ -->
+  <div class="modal-overlay hidden" id="wizardOverlay">
+    <div class="modal hud-modal" id="wizardModal" style="max-width: 620px;">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-sys-tag">[SETUP WIZARD]</span>
+          <h2>⚙ First-Run Configuration</h2>
+        </div>
+        <button class="btn-icon" id="btnCloseWizard">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 1.2rem;">
+          Configure your local AI environment, hardware settings, and privacy permissions.
+        </p>
+
+        <div class="setting-group">
+          <label class="setting-label">Hardware Profile & Recommendation</label>
+          <div id="wizardHwSummary" style="padding: 0.75rem; background: rgba(0,240,255,0.05); border: 1px solid rgba(0,240,255,0.2); border-radius: 6px; font-size: 0.85rem; color: #e2e8f0;">
+            Detecting hardware…
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <label class="setting-label">Preferred Local LLM Model</label>
+          <select id="wizardModelSelect" class="setting-select">
+            <option value="llama3.2:3b">llama3.2:3b (Recommended for 4-6GB VRAM / 16GB RAM)</option>
+            <option value="llama3.2:1b">llama3.2:1b (Fast, lightweight for CPU or low VRAM)</option>
+            <option value="llama3.1:8b">llama3.1:8b (High intelligence for >=8GB VRAM / 24GB RAM)</option>
+            <option value="phi3:mini">phi3:mini (Compact high-reasoning model)</option>
+          </select>
+          <div class="setting-hint">Models run 100% offline via local Ollama. Ensure the model is downloaded with <code>ollama pull &lt;model&gt;</code>.</div>
+        </div>
+
+        <div class="setting-group">
+          <label class="setting-label">Feature & Safety Preferences</label>
+          <label class="toggle-label" style="margin-bottom: 0.5rem;">
+            <input type="checkbox" id="wizardToolConfirmToggle" checked />
+            <span class="toggle-track"></span>
+            Require explicit confirmation before running computer actions
+          </label>
+          <label class="toggle-label" style="margin-bottom: 0.5rem;">
+            <input type="checkbox" id="wizardWakeWordToggle" />
+            <span class="toggle-track"></span>
+            Enable background wake-word listening ("Nova")
+          </label>
+          <label class="toggle-label">
+            <input type="checkbox" id="wizardAutoStartToggle" />
+            <span class="toggle-track"></span>
+            Start NOVA automatically when Windows boots
+          </label>
+        </div>
+
+        <div style="margin-top: 1.5rem; display: flex; justify-content: flex-end; gap: 0.5rem;">
+          <button class="btn-sm btn-secondary" id="btnCancelWizard">Skip</button>
+          <button class="btn-sm btn-primary" id="btnSaveWizard">Save & Apply</button>
         </div>
       </div>
     </div>
